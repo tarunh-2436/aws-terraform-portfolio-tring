@@ -19,6 +19,13 @@ This repository provisions and deploys a static portfolio website on AWS using T
 * Bucket policy restricts object access to CloudFront only.
 * Objects can be uploaded and downloaded securely using pre-signed URLs.
 
+### Logging Features
+
+* CloudFront access logging is enabled.
+* Request logs are written to a dedicated S3 logging bucket.
+* Log files are retained for 90 days using an S3 lifecycle policy.
+* Logs can be used for troubleshooting, traffic analysis, and auditing.
+
 ---
 
 ## Repository Structure
@@ -196,6 +203,86 @@ Pushing changes to the configured branch automatically deploys the latest websit
 
 ---
 
+## CloudFront Access Logging
+
+CloudFront access logging is enabled and configured to write request logs to a dedicated S3 logging bucket.
+
+### Logging Purpose
+
+The access logs provide visibility into:
+
+* Request timestamps
+* Requested objects
+* HTTP methods
+* HTTP status codes
+* Client IP addresses
+* User agents
+* Bytes transferred
+
+These logs can be used for:
+
+* Troubleshooting
+* Traffic analysis
+* Security investigations
+* Cache behavior analysis
+
+### Logging Architecture
+
+```text
+Users
+   |
+   v
+CloudFront
+   |
+   +--> Website Content
+   |
+   +--> Access Logs
+            |
+            v
+      Logging S3 Bucket
+```
+
+### Log Storage
+
+CloudFront writes compressed log files into:
+
+```text
+s3://<logging-bucket>/cloudfront/
+```
+
+Example:
+
+```text
+cloudfront/
+├── E123ABC.20260529-1000.gz
+├── E123ABC.20260529-1100.gz
+└── E123ABC.20260529-1200.gz
+```
+
+### Log Retention
+
+The logging bucket is configured with an S3 lifecycle rule:
+
+```text
+Retain logs for 90 days
+```
+
+Older log files are automatically deleted to control storage growth.
+
+### Note
+
+CloudFront standard logs are not generated in real time.
+
+Logs typically appear:
+
+```text
+5-30 minutes after requests are made
+```
+
+depending on CloudFront processing and delivery delays.
+
+---
+
 # Testing
 
 ## 1. Verify Terraform Infrastructure
@@ -278,20 +365,6 @@ Generate a pre-signed PUT URL:
 python scripts/presigned_put.py
 ```
 
-Copy the generated URL and upload a file:
-
-```bash
-curl -X PUT \
-  --upload-file sample.txt \
-  "<presigned-put-url>"
-```
-
-Expected:
-
-```text
-HTTP 200
-```
-
 Verify object exists:
 
 ```bash
@@ -306,12 +379,6 @@ Generate a pre-signed GET URL:
 
 ```bash
 python scripts/presigned_get.py
-```
-
-Download the object:
-
-```bash
-curl "<presigned-get-url>" -o downloaded-file
 ```
 
 Verify contents:
@@ -329,12 +396,6 @@ File contents match uploaded object
 ---
 
 ## 6. Test Multipart Uploads
-
-Create a large test file:
-
-```bash
-dd if=/dev/zero of=largefile.bin bs=1M count=100
-```
 
 Run multipart upload script:
 
@@ -402,6 +463,61 @@ Refresh the website and verify the latest version is displayed.
 
 ---
 
+## 9. Verify CloudFront Access Logging
+
+Generate traffic against the distribution:
+
+```bash
+curl https://<cloudfront-domain>
+curl https://<cloudfront-domain>/index.html
+curl https://<cloudfront-domain>/<object-name>
+```
+
+Wait approximately:
+
+```text
+5-30 minutes
+```
+
+List log files:
+
+```bash
+aws s3 ls s3://<logging-bucket>/cloudfront/ --recursive
+```
+
+Expected:
+
+```text
+cloudfront/E123ABC....
+```
+
+Download a log file:
+
+```bash
+aws s3 cp \
+s3://<logging-bucket>/cloudfront/<log-file>.gz \
+log.gz
+```
+
+Extract:
+
+```bash
+gzip -d log.gz
+```
+
+Open the extracted file and verify that requests made to the CloudFront distribution have been recorded.
+
+Expected information includes:
+
+* Request timestamp
+* Requested object
+* HTTP method
+* HTTP status code
+* Client IP
+* User agent
+
+---
+
 ## Cleanup
 
 Destroy all infrastructure:
@@ -453,3 +569,17 @@ Verify:
 * OAC is configured correctly.
 * CloudFront distribution is deployed.
 * S3 Block Public Access remains enabled.
+
+### CloudFront Logs Not Appearing
+
+Verify:
+
+* CloudFront logging is enabled.
+* The logging bucket exists.
+* ACLs are enabled on the logging bucket.
+* Log delivery has been configured successfully.
+* At least 5–30 minutes have passed since generating traffic.
+* Requests have been made through the CloudFront distribution.
+
+```
+```

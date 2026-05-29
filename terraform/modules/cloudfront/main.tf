@@ -49,4 +49,10 @@ resource "aws_cloudfront_distribution" "this" {
   viewer_certificate {
     cloudfront_default_certificate = true
   }
+
+  logging_config {
+    bucket          = var.logging_bucket_domain_name
+    include_cookies = false
+    prefix          = "cloudfront/"
+  }  
 }

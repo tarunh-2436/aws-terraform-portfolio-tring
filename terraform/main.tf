@@ -29,6 +29,7 @@ module "logging_bucket" {
 
   bucket_name = var.logging_bucket_name
   tags        = var.common_tags
+  allow_acls  = true
 }
 
 module "cloudfront" {
@@ -36,6 +37,8 @@ module "cloudfront" {
 
   bucket_domain_name = module.website_bucket.bucket_regional_domain_name
   bucket_arn         = module.website_bucket.bucket_arn
+
+  logging_bucket_domain_name = module.logging_bucket.bucket_domain_name
 }
 
 data "aws_iam_policy_document" "website_bucket_policy" {
@@ -82,6 +85,40 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
 
     noncurrent_version_expiration {
       noncurrent_days = 30
+    }
+  }
+}
+
+resource "aws_s3_bucket_ownership_controls" "logging_bucket" {
+  bucket = module.logging_bucket.bucket_id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+resource "aws_s3_bucket_acl" "logging_bucket" {
+
+  depends_on = [
+    aws_s3_bucket_ownership_controls.logging_bucket
+  ]
+
+  bucket = module.logging_bucket.bucket_id
+
+  acl = "log-delivery-write"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "logging_bucket" {
+
+  bucket = module.logging_bucket.bucket_id
+
+  rule {
+    id     = "expire-logs"
+    status = "Enabled"
+
+    filter {}
+
+    expiration {
+      days = 90
     }
   }
 }

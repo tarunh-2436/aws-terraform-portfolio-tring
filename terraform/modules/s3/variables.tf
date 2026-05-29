@@ -5,3 +5,8 @@ variable "bucket_name" {
 variable "tags" {
   type = map(string)
 }
+
+variable "allow_acls" {
+  type    = bool
+  default = false
+}
