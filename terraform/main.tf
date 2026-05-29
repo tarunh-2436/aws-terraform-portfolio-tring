@@ -69,3 +69,19 @@ resource "aws_s3_bucket_policy" "website_bucket_policy" {
   bucket = module.website_bucket.bucket_id
   policy = data.aws_iam_policy_document.website_bucket_policy.json
 }
+
+resource "aws_s3_bucket_lifecycle_configuration" "this" {
+
+  bucket = module.website_bucket.bucket_id
+
+  rule {
+    id     = "cleanup-old-versions"
+    status = "Enabled"
+
+    filter {}
+
+    noncurrent_version_expiration {
+      noncurrent_days = 30
+    }
+  }
+}

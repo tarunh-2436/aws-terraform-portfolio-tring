@@ -7,11 +7,9 @@ on:
 
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -22,9 +20,29 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Sync Website Files
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: terraform
+        run: terraform validate
+
+      - name: Upload HTML Files
         run: |
-          aws s3 sync website/ s3://${{ vars.WEBSITE_BUCKET }} --delete
+          aws s3 cp website/index.html \
+            s3://${{ vars.WEBSITE_BUCKET }}/index.html \
+            --cache-control "public,max-age=3600" \
+            --content-type "text/html"
+
+      - name: Upload Remaining Assets
+        run: |
+          aws s3 sync website/ s3://${{ vars.WEBSITE_BUCKET }} \
+            --exclude "index.html" \
+            --cache-control "public,max-age=86400"
 
       - name: Invalidate CloudFront Cache
         run: |
