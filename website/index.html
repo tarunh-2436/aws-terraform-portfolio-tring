@@ -637,6 +637,156 @@
             transform: translateY(0);
         }
     </style>
+
+<style id="premium-dark-theme">
+:root{
+ --primary:#818cf8;
+ --primary-soft:#1e293b;
+ --primary-gradient:linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%);
+ --bg:#0b1120;
+ --card-bg:#111827;
+ --text-main:#f8fafc;
+ --text-muted:#94a3b8;
+ --border-subtle:#1f2937;
+ --shadow-soft:0 20px 50px rgba(0,0,0,.35);
+}
+
+body{
+ background:
+ radial-gradient(circle at 10% 10%, rgba(99,102,241,.18), transparent 30%),
+ radial-gradient(circle at 90% 70%, rgba(139,92,246,.15), transparent 30%),
+ #0b1120;
+ color:var(--text-main);
+}
+
+.container{max-width:1180px;}
+
+.header-card,
+.section-inner,
+.project-card,
+.education-item,
+.experience-item,
+.skill-category,
+.org-card,
+.cert-item,
+.nav-inner{
+ background:rgba(17,24,39,.85)!important;
+ backdrop-filter:blur(20px);
+ border:1px solid rgba(255,255,255,.06)!important;
+ box-shadow:var(--shadow-soft);
+}
+
+.header-card{
+ border-radius:32px;
+ padding:2.8rem;
+}
+
+.profile-img{
+ width:180px;
+ height:180px;
+ border-radius:28px;
+ border:2px solid rgba(129,140,248,.25);
+ box-shadow:0 20px 50px rgba(99,102,241,.2);
+}
+
+.header-info h1{
+ font-size:3rem;
+ color:#fff;
+}
+
+.title{
+ color:#a5b4fc!important;
+ font-size:1.1rem!important;
+}
+
+.tagline,
+.about-content,
+.education-meta,
+.project-subtitle,
+.project-features,
+.experience-achievements,
+.org-card p,
+.cert-item p{
+ color:#cbd5e1!important;
+}
+
+.section-title{
+ color:#fff;
+ font-size:1.8rem;
+}
+
+.section-title::after{
+ content:'';
+ display:block;
+ margin-top:10px;
+ width:70px;
+ height:4px;
+ border-radius:999px;
+ background:linear-gradient(90deg,#6366f1,#8b5cf6);
+}
+
+.nav-inner{
+ border-radius:999px;
+}
+
+.nav-links a{
+ color:#cbd5e1;
+}
+
+.nav-links a:hover,
+.nav-links a.active{
+ background:linear-gradient(135deg,#6366f1,#8b5cf6);
+ color:white;
+}
+
+.skill-tag,
+.pill,
+.project-date,
+.experience-date{
+ background:rgba(99,102,241,.15)!important;
+ color:#c7d2fe!important;
+ border:none!important;
+}
+
+.contact-item,
+.btn-ghost{
+ background:rgba(255,255,255,.04)!important;
+ color:#e5e7eb!important;
+ border-color:rgba(255,255,255,.08)!important;
+}
+
+.btn-primary{
+ background:linear-gradient(135deg,#6366f1,#8b5cf6)!important;
+}
+
+.project-card:hover,
+.education-item:hover,
+.experience-item:hover,
+.skill-category:hover,
+.org-card:hover,
+.cert-item:hover{
+ transform:translateY(-8px);
+ box-shadow:0 25px 60px rgba(99,102,241,.15);
+}
+
+.project-header{
+ background:linear-gradient(
+ 135deg,
+ rgba(99,102,241,.12),
+ rgba(139,92,246,.08)
+ )!important;
+}
+
+footer{
+ color:#64748b;
+}
+
+@media(max-width:768px){
+ .header-info h1{font-size:2.2rem;}
+ .profile-img{width:140px;height:140px;}
+}
+</style>
+
 </head>
 <body>
     <!-- Header / Hero -->
